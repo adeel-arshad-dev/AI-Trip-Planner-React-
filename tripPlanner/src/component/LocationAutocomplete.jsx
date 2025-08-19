@@ -1,25 +1,39 @@
-import { useState } from "react";
-import './App.css'
 
-export default function LocationAutocomplete({ value, onChange }) {
+import { useState, useEffect, useRef } from "react";
+
+export default function LocationAutocomplete({ value, onChange, setCoords }) {
   const [suggestions, setSuggestions] = useState([]);
+  const [query, setQuery] = useState(value);
+  const debounceRef = useRef(null);
 
-  const locationiqKey = "pk.aa7f5d0539c5675b7f3429402939d8fa"; // your API key
+  // Sync query with parent value
+  useEffect(() => {
+    setQuery(value);
+  }, [value]);
 
-  // Fetch suggestions as user types
-  const fetchSuggestions = async (val) => {
-    onChange(val); // update parent state (input value)
-
-    if (val.length < 3) {
+  useEffect(() => {
+    if (query.length < 3) {
       setSuggestions([]);
       return;
     }
 
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      fetchSuggestions(query);
+    }, 300);
+
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, [query]);
+
+  const fetchSuggestions = async (val) => {
     try {
-      const response = await fetch(
-        `https://api.locationiq.com/v1/autocomplete?key=${locationiqKey}&q=${val}&limit=5&format=json`
-      );
-      const data = await response.json();
+      const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
+        val
+      )}&addressdetails=1&limit=5`;
+      const res = await fetch(url);
+      const data = await res.json();
 
       setSuggestions(
         data.map((item) => ({
@@ -28,30 +42,33 @@ export default function LocationAutocomplete({ value, onChange }) {
           lon: item.lon,
         }))
       );
-    } catch (error) {
-      console.error("Error fetching suggestions:", error);
+    } catch (err) {
+      console.error("Error fetching suggestions:", err);
+      setSuggestions([]);
     }
   };
 
-  // Handle selection
   const handleSelect = (item) => {
-    onChange(item.name); // send selected place to parent
-    setSuggestions([]);  // hide dropdown
+    onChange(item.name);
+    setQuery(item.name);
+    if (setCoords) setCoords({ lat: item.lat, lon: item.lon });
+    setSuggestions([]);
   };
 
   return (
-    <div className="w-full">
+    <div className="w-full relative">
       <input
         type="text"
-        value={value}
-        onChange={(e) => fetchSuggestions(e.target.value)}
+        value={query}
+        onChange={(e) => {
+          setQuery(e.target.value);
+          onChange(e.target.value);
+        }}
         placeholder="Search for an address..."
         className="border p-2 rounded w-full"
       />
-
-      {/* Suggestions dropdown */}
       {suggestions.length > 0 && (
-        <ul className="border rounded mt-1 bg-white shadow">
+        <ul className="border rounded mt-1 bg-white shadow absolute z-10 w-full max-h-60 overflow-y-auto">
           {suggestions.map((item, index) => (
             <li
               key={index}
@@ -66,4 +83,3 @@ export default function LocationAutocomplete({ value, onChange }) {
     </div>
   );
 }
-import './App.css'

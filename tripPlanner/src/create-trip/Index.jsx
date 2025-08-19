@@ -1,8 +1,8 @@
 
-import Rect from 'react';
+import React from 'react';
 import { useState } from "react";
 
-import LocationAutocomplete from "../components/LocationAutocomplete";
+import LocationAutocomplete from "../component/LocationAutocomplete.jsx";
 
 export default function Create_trip() {
 
@@ -21,7 +21,8 @@ export default function Create_trip() {
             <h2 className='text-xl my-2 font-medium'>
                 What is your destination of choice?
             </h2>
-           <LocationAutocomplete value={place} onChange={setPlace} />
+     <LocationAutocomplete value={place} onChange={setPlace} />
+
 
       <div className="mt-4 p-3 border rounded bg-gray-50">
         <strong>Selected Place:</strong> {place || "None yet"}
