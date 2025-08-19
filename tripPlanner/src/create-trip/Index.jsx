@@ -1,7 +1,12 @@
 
 import Rect from 'react';
+import { useState } from "react";
+
+import LocationAutocomplete from "../components/LocationAutocomplete";
+
 export default function Create_trip() {
 
+      const [place, setPlace] = useState("");
     return(
         <>
         <div className='sm:px-10 md:px-32 lg:px-56 kl:px-10 px-5 mt-10 '>
@@ -16,8 +21,12 @@ export default function Create_trip() {
             <h2 className='text-xl my-2 font-medium'>
                 What is your destination of choice?
             </h2>
-            <googlePlaceAutocomplete 
-            />
+           <LocationAutocomplete value={place} onChange={setPlace} />
+
+      <div className="mt-4 p-3 border rounded bg-gray-50">
+        <strong>Selected Place:</strong> {place || "None yet"}
+      </div>
+
            </div>
         </div>
 
