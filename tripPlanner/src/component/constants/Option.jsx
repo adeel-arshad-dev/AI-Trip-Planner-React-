@@ -22,6 +22,13 @@
         icon: '🏡',
         people: '3 to 5 People'
     },
+    {
+    id: 4, 
+    title: 'Friends',
+    desc: 'Friends on an adventure',
+    icon: '👯‍♂️', 
+    people: '2 to 5 People' 
+}
 ];
 
 // Data for the budget selection cards
